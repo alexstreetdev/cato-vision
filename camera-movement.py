@@ -12,15 +12,16 @@ import sys
 import pika
 import jsonpickle
 import uuid
+from models import ImageContent
 
-class Content:
-    def __init__(self, id, x, y, w, h, description):
-        self.imageid = id
-        self.x = x
-        self.y = y
-        self.width = w
-        self.height = h
-        self.contentdescription = description
+#class Content:
+ #   def __init__(self, id, x, y, w, h, description):
+  #      self.imageid = id
+   #     self.x = x
+    #    self.y = y
+     #   self.width = w
+      #  self.height = h
+       # self.contentdescription = description
 
 class Image:
     def __init__(self, imageid, source, correlationid, sequencenumber, eventtime, url):
@@ -29,7 +30,7 @@ class Image:
         self.correlationid = correlationid
         self.sequencenumber = sequencenumber
         self.eventtime = eventtime
-        self.url = url
+        self.imageurl = url
 
 def main(myargs):
     inputUrl = myargs.inputurl
@@ -89,8 +90,8 @@ def main(myargs):
                 correlationId = str(uuid.uuid4())
             eventTime = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             imageid = correlationId + '_' + str(sequencenumber) + '.jpg'
-            postUrl = outputUrl + '/' + imageid
-            m = Image(imageid, cameraName, correlationId, sequencenumber, eventTime, outputUrl)
+            imageUrl = outputUrl + '/api/image/' + imageid
+            m = Image(imageid, cameraName, correlationId, sequencenumber, eventTime, imageUrl)
 
             detection = False
             for c in cnts:
@@ -98,7 +99,7 @@ def main(myargs):
                 if diff >= threshold:
                     detection = True
                     (x,y,w,h) = cv2.boundingRect(c)
-                    contentsarray.append(Content(imageid,x,y,w,h,'movement'))
+                    contentsarray.append(ImageContent(imageid,imageUrl,x,y,w,h,'movement'))
                 else:
                     print("diff: " + str(diff) + " / " + str(threshold))
 
@@ -162,12 +163,12 @@ def uploadImageContents(contents, host):
     print("image contents sent: " + str(resp))
 
 def sendMovementMessage(channel, m):
-    jsonBody = jsonpickle.encode(m)
+    jsonBody = jsonpickle.encode(m,unpicklable=False)
     messagekey = 'vision.evt.detected-movement'
     channel.basic_publish(exchange='msg_gateway',
                             routing_key=messagekey,
                             properties=pika.BasicProperties(
-                                app_id='cato-camera-movement', type='Movement'),
+                                app_id='camera-movement', type='ImageContent'),
                             body=jsonBody)
 
 def objectToJson(cls):
