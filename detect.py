@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pika
 import requests
+import urllib
 from commands import DetectFaceCmd
 from models import ImageContent
 
@@ -14,14 +15,16 @@ _messages_recd = 0
 _classifier = None
 _queue_name = ''
 _object_name = ''
+_imageUrl = ''
 
-
-def main(queuename, objectname):
+def main(queuename, objectname, imageHostUrl):
     print('Running...')
     global _queue_name
     _queue_name = queuename
     global _object_name
     _object_name = objectname
+    global _imageUrl
+    _imageUrl = imageHostUrl
     _channel.basic_qos(prefetch_count=1)
     _channel.basic_consume(_recv_message, queue=_queue_name)
     _channel.start_consuming()
@@ -48,6 +51,7 @@ def _recv_message(channel, method, header, body):
             print('detected ' + _object_name)
             eventTime = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             fd = ImageContent(cmd.ImageId, cmd.ImageUrl, cmd.X + x.item(), cmd.Y + y.item(), w.item(), h.item(), _object_name)
+            upload_conent_data(fd)
             send_face_detected_msg(channel, fd)
     else:
         print(response.status_code)
@@ -90,6 +94,13 @@ def configure_rabbitmq(hostname, username, password):
     #channel.queue_bind(queue='vision_facedetect_queue', exchange='vision', routing_key='vision.*.movement-detected')
     return channel
 
+# upload image content info to ImageStore
+def upload_image_data(c):
+    targetUrl = imageUrl + '/api/imagedata/addcontent'
+    jsonBody = jsonpickle.encode(c, unpicklable = False)
+    jsonBody = jsonBody.replace('"', r'\"')
+    jsonBody = '"' + jsonBody + '"'
+    requests.post(targetUrl, data=jsonBody, headers={'Content-Type':'application/json'})
 
 def initialise_classifiers(filename):
     classifierpath = "./cascades/" + filename
@@ -106,9 +117,10 @@ if __name__ == '__main__':
     parser.add_argument('-qn', action='store', dest='queuename', default='vision_cmd_detectface', help='RabbitMQ queue name', required=False)
     parser.add_argument('-hc', action='store', dest='haar', default='haarcascade_frontalface_default.xml', help='haar cascade filename', required=False)
     parser.add_argument('-nm', action='store', dest='objectname', default='face', help='detected object name', required=False)
+    parser.add_argument('-is', action='store', dest='imagestore', default='127.0.0.1', help='Url of ImageStore', required=True)
 
     myargs = parser.parse_args()
     _channel=configure_rabbitmq(myargs.hostname, myargs.username, myargs.password)
     initialise_classifiers(myargs.haar)
 
-    main(myargs.queuename, myargs.objectname)
+    main(myargs.queuename, myargs.objectname, myargs.imagestore)

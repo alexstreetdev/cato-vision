@@ -6,4 +6,4 @@ class ImageContent:
         self.Y = y
         self.Width = width
         self.Height = height
-        self.Description = description
+        self.ContentDescription = description
