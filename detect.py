@@ -51,7 +51,7 @@ def _recv_message(channel, method, header, body):
             print('detected ' + _object_name)
             eventTime = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             fd = ImageContent(cmd.ImageId, cmd.ImageUrl, cmd.X + x.item(), cmd.Y + y.item(), w.item(), h.item(), _object_name)
-            upload_conent_data(fd)
+            upload_content_data(fd)
             send_face_detected_msg(channel, fd)
     else:
         print(response.status_code)
@@ -81,6 +81,7 @@ def send_face_detected_msg(channel, faceDetect):
         channel.basic_publish(exchange='msg_gateway',
             properties=props,
             routing_key=routingKey, body=jsonBody)
+        print(routingKey)
     except Exception as e:
         print(e)
 
@@ -95,8 +96,8 @@ def configure_rabbitmq(hostname, username, password):
     return channel
 
 # upload image content info to ImageStore
-def upload_image_data(c):
-    targetUrl = imageUrl + '/api/imagedata/addcontent'
+def upload_content_data(c):
+    targetUrl = _imageUrl + '/api/imagedata/addcontent'
     jsonBody = jsonpickle.encode(c, unpicklable = False)
     jsonBody = jsonBody.replace('"', r'\"')
     jsonBody = '"' + jsonBody + '"'
