@@ -1,5 +1,5 @@
 class ImageContent:
-    def __init__(self, id, url, x, y, width, height, description):
+    def __init__(self, id, url, x, y, width, height, description, data, source):
         self.ImageId = id
         self.ImageUrl = url
         self.X = x
@@ -7,3 +7,5 @@ class ImageContent:
         self.Width = width
         self.Height = height
         self.ContentDescription = description
+        self.ContentData = data
+        self.Source = source
