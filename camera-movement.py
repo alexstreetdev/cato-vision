@@ -14,14 +14,6 @@ import jsonpickle
 import uuid
 from models import ImageContent
 
-#class Content:
- #   def __init__(self, id, x, y, w, h, description):
-  #      self.imageid = id
-   #     self.x = x
-    #    self.y = y
-     #   self.width = w
-      #  self.height = h
-       # self.contentdescription = description
 
 class Image:
     def __init__(self, imageid, source, correlationid, sequencenumber, eventtime, url):
@@ -99,7 +91,7 @@ def main(myargs):
                 if diff >= threshold:
                     detection = True
                     (x,y,w,h) = cv2.boundingRect(c)
-                    contentsarray.append(ImageContent(imageid,imageUrl,x,y,w,h,'movement'))
+                    contentsarray.append(ImageContent(imageid,imageUrl,x,y,w,h,'movement',"",'camera-movement'))
                 else:
                     print("diff: " + str(diff) + " / " + str(threshold))
 
