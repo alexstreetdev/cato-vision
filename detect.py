@@ -29,7 +29,7 @@ def main(queuename, objectname, imageHostUrl):
     _channel.basic_qos(prefetch_count=1)
     print('listening to queue: ')
     print(_queue_name)
-    _channel.basic_consume(_recv_message, queue=_queue_name)
+    _channel.basic_consume(callback=_recv_message, queue=_queue_name)
     _channel.start_consuming()
 
 def _recv_message(channel, method, header, body):
