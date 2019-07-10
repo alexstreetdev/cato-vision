@@ -53,7 +53,7 @@ def _recv_message(channel, method, header, body):
         for (x,y,w,h) in faces:
             print('detected ' + _object_name)
             eventTime = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-            fd = ImageContent(cmd.ImageId, cmd.ImageUrl, cmd.X + x.item(), cmd.Y + y.item(), w.item(), h.item(), _object_name)
+            fd = ImageContent(cmd.ImageId, cmd.ImageUrl, cmd.X + x.item(), cmd.Y + y.item(), w.item(), h.item(), _object_name,"",'detect(' + _object_name +')')
             upload_content_data(fd)
             send_face_detected_msg(channel, fd)
     else:
