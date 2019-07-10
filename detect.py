@@ -115,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('-rh', action='store', dest='hostname', help='RabbitMQ hostname', required=True)
     parser.add_argument('-un', action='store', dest='username', default='guest', help='RabbitMQ username', required=False)
     parser.add_argument('-pw', action='store', dest='password', default='guest', help='RabbitMQ password', required=False)
-    parser.add_argument('-qn', action='store', dest='queuename', default='vision_cmd_detectface', help='RabbitMQ queue name', required=False)
+    parser.add_argument('-qn', action='store', dest='queuename', default='vision_cmd_detect-face', help='RabbitMQ queue name', required=False)
     parser.add_argument('-hc', action='store', dest='haar', default='haarcascade_frontalface_default.xml', help='haar cascade filename', required=False)
     parser.add_argument('-nm', action='store', dest='objectname', default='face', help='detected object name', required=False)
     parser.add_argument('-is', action='store', dest='imagestore', default='127.0.0.1', help='Url of ImageStore', required=True)
