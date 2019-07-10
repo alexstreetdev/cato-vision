@@ -25,7 +25,10 @@ def main(queuename, objectname, imageHostUrl):
     _object_name = objectname
     global _imageUrl
     _imageUrl = imageHostUrl
+    print('prefetch count = 1')
     _channel.basic_qos(prefetch_count=1)
+    print('listening to queue: ')
+    print(_queue_name)
     _channel.basic_consume(_recv_message, queue=_queue_name)
     _channel.start_consuming()
 
@@ -87,12 +90,11 @@ def send_face_detected_msg(channel, faceDetect):
 
 
 def configure_rabbitmq(hostname, username, password):
+    print('Connecting as user ' + username + ' @ ' + hostname)
     credentials=pika.PlainCredentials(username, password)
     parameters=pika.ConnectionParameters(hostname, 5672, '/', credentials)
     connection=pika.BlockingConnection(parameters)
     channel=connection.channel()
-    #channel.queue_declare(queue='vision_facedetect_queue', durable=True, exclusive=False)
-    #channel.queue_bind(queue='vision_facedetect_queue', exchange='vision', routing_key='vision.*.movement-detected')
     return channel
 
 # upload image content info to ImageStore
