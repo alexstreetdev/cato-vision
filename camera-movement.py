@@ -12,17 +12,9 @@ import sys
 import pika
 import jsonpickle
 import uuid
+from models import Image
 from models import ImageContent
 
-
-class Image:
-    def __init__(self, imageid, source, correlationid, sequencenumber, eventtime, url):
-        self.imageid = imageid
-        self.source = source
-        self.correlationid = correlationid
-        self.sequencenumber = sequencenumber
-        self.eventtime = eventtime
-        self.imageurl = url
 
 def main(myargs):
     inputUrl = myargs.inputurl
@@ -91,7 +83,8 @@ def main(myargs):
                 if diff >= threshold:
                     detection = True
                     (x,y,w,h) = cv2.boundingRect(c)
-                    contentsarray.append(ImageContent(imageid,imageUrl,x,y,w,h,'movement',"",'camera-movement'))
+                    contentid = str(uuid.uuid4())
+                    contentsarray.append(ImageContent(contentid,imageid,imageUrl,x,y,w,h,'movement',"",'camera-movement'))
                 else:
                     print("diff: " + str(diff) + " / " + str(threshold))
 
@@ -151,6 +144,7 @@ def uploadImageContents(contents, host):
     targetUrl = host + '/api/imagedata/addcontent'
     #jsonBody = jsonpickle.encode(c)
     jsonBody = objectToJson(contents)
+    print(jsonBody)
     resp = requests.post(targetUrl, data=jsonBody, headers={'Content-Type':'application/json'})
     print("image contents sent: " + str(resp))
 
